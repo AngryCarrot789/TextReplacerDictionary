@@ -11,6 +11,7 @@
         mc:Ignorable="d"
         Title="Text Replacer" 
         Height="720" Width="1280"
+        MinWidth="990" MinHeight="520"
         Style="{DynamicResource CustomWindowStyle}">
     <Window.Resources>
         <Converters:IsSearchingToStartStopConverter x:Key="IsSearchingToStartStopConverter"/>
@@ -19,7 +20,8 @@
     <Grid Margin="5">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="12*"/>
+                <ColumnDefinition Width="12*" MinWidth="300"/>
+                <ColumnDefinition Width="9"/>
                 <ColumnDefinition Width="30*"/>
             </Grid.ColumnDefinitions>
             <GroupBox DataContext="{Binding Dictionary, UpdateSourceTrigger=PropertyChanged}">
@@ -52,9 +54,10 @@
                     <GroupBox Margin="0,132,0,136">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Dictionary Pairs" VerticalAlignment="Center"/>
+                                <TextBlock Text="Pairs" VerticalAlignment="Center"/>
                                 <Separator Style="{DynamicResource VerticalSeparator}" Margin="5 0"/>
-                                <CheckBox IsChecked="{Binding CaseSensitive, UpdateSourceTrigger=PropertyChanged}" Content="Case Sensitive" Background="{DynamicResource ControlBrightDefaultBackground}" BorderBrush="{DynamicResource ControlBrightDefaultBorderBrush}"/>
+                                <CheckBox IsChecked="{Binding CaseSensitive, UpdateSourceTrigger=PropertyChanged}" ToolTip="Takes the CAPITALS and lowercases into consideration during search" Content="Case Sensitive" Background="{DynamicResource ControlBrightDefaultBackground}" BorderBrush="{DynamicResource ControlBrightDefaultBorderBrush}"/>
+                                <CheckBox IsChecked="{Binding MatchWholeWords, UpdateSourceTrigger=PropertyChanged}" ToolTip="If enabled, searching 'hello' for 'll' returns false, because it's not a whole word. " Content="Match Whole Words" Background="{DynamicResource ControlBrightDefaultBackground}" BorderBrush="{DynamicResource ControlBrightDefaultBorderBrush}" Margin="5 0 0 0"/>
                             </StackPanel>
                         </GroupBox.Header>
                         <Grid>
@@ -107,12 +110,13 @@
                     </GroupBox>
                 </Grid>
             </GroupBox>
-
-            <GroupBox Header="Replacing" DataContext="{Binding Replacing, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="3,0,0,0">
+            <GridSplitter Grid.Column="1" Width="3" VerticalAlignment="Stretch" HorizontalAlignment="Center"/>
+            <GroupBox Header="Replacing" DataContext="{Binding Replacing, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1*" MinWidth="240"/>
+                        <ColumnDefinition Width="9"/>
+                        <ColumnDefinition Width="2*" MinWidth="360"/>
                     </Grid.ColumnDefinitions>
                     <GroupBox Header="Files" Margin="0,0,0,153">
                         <Grid>
@@ -128,13 +132,14 @@
                                     <CheckBox IsChecked="{Binding SearchRecursively, UpdateSourceTrigger=PropertyChanged}" Content="Search&#xA;Recursively" HorizontalAlignment="Right" Width="82" Height="Auto"/>
                                 </Grid>
                             </Border>
+                            <Button Content="Save all Files" Command="{Binding SaveAllFilesCommand, Mode=OneTime}" Margin="0,73,0,0" Height="32" VerticalAlignment="Top"/>
                             <ListBox ItemsSource="{Binding Files, Mode=OneTime}"
                                      SelectedItem="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}"
                                      HorizontalContentAlignment="Stretch"
                                      ScrollViewer.CanContentScroll="False"
                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                                      BorderBrush="{DynamicResource ControlDefaultBorderBrush}" 
-                                     Margin="0,73,0,38">
+                                     Margin="0,108,0,38">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <replacing:FileControl DataContext="{Binding}"/>
@@ -149,25 +154,26 @@
                     </GroupBox>
                     <GroupBox Header="Search and Replace" Height="150" VerticalAlignment="Bottom">
                         <Grid>
-                            <Button Content="{Binding IsSearching, Converter={StaticResource IsSearchingToStartStopConverter}, UpdateSourceTrigger=PropertyChanged}" 
-                                    Command="{Binding AutoStartSearchCommand, Mode=OneTime}"
+                            <Button Command="{Binding AutoStartSearchCommand, Mode=OneTime}"
+                                    Content="{Binding IsSearching, Converter={StaticResource IsSearchingToStartStopConverter}, UpdateSourceTrigger=PropertyChanged}"
                                     FontSize="20" 
-                                    HorizontalAlignment="Stretch" 
-                                    Margin="0,55,0,0" 
-                                    Background="{Binding IsSearching, Converter={StaticResource IsSearchingToColourConverter}, UpdateSourceTrigger=PropertyChanged}"/>
-                            <Label Content="Will search through" Padding="5 5 4 5" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                            <StackPanel Orientation="Horizontal" Margin="112,0,0,0" Height="26" VerticalAlignment="Top">
+                                    Background="{Binding IsSearching, Converter={StaticResource IsSearchingToColourConverter}, UpdateSourceTrigger=PropertyChanged}" Margin="116,52,0,0"/>
+                            <Label Content="Will search through" Padding="5 5 4 5" HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource BackgroundColour}"/>
+                            <StackPanel Orientation="Horizontal" Margin="112,0,0,0" Height="26" VerticalAlignment="Top" Background="{DynamicResource BackgroundColour}" HorizontalAlignment="Left" Width="76">
                                 <Label Content="{Binding Files.Count, FallbackValue=0, UpdateSourceTrigger=PropertyChanged}" Padding="0 5 4 5"/>
                                 <Label Content="Files" Padding="0 5 5 5"/>
                             </StackPanel>
-                            <Label Content="For" Padding="5 5 4 5" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,26,0,0"/>
-                            <StackPanel Orientation="Horizontal" Margin="26,26,0,0" Height="26" VerticalAlignment="Top">
+                            <Label Content="For" Padding="5 5 4 5" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,26,0,0" Background="{DynamicResource BackgroundColour}"/>
+                            <StackPanel Orientation="Horizontal" Margin="26,26,0,0" Height="26" VerticalAlignment="Top" Background="{DynamicResource BackgroundColour}" HorizontalAlignment="Left" Width="162">
                                 <Label Content="{Binding Dictionary.DictionaryItems.Count, UpdateSourceTrigger=PropertyChanged}" Padding="0 5 4 5"/>
                                 <Label Content="Keys to be replaced" Padding="0 5 5 5"/>
                             </StackPanel>
+                            <Label Content="Files Left" Padding="5 5 4 5" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,52,0,0" Background="{DynamicResource BackgroundColour}"/>
+                            <Label Content="{Binding FilesLeftToSearch, UpdateSourceTrigger=PropertyChanged}" Padding="5 5 4 5" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="55,52,0,0" Background="{DynamicResource BackgroundColour}" Width="61"/>
                         </Grid>
                     </GroupBox>
-                    <GroupBox DataContext="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="3,0,0,0">
+                    <GridSplitter HorizontalAlignment="Center" Width="3" Grid.Column="1"/>
+                    <GroupBox DataContext="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Selected File"/>

@@ -5,16 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TextDictionaryReplacer.Dictionaries"
              mc:Ignorable="d" 
-             d:DesignHeight="32" d:DesignWidth="400">
+             Height="30" d:DesignWidth="320">
     <Grid Margin="0 1">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="12*"/>
+            <ColumnDefinition Width="100*"/>
+            <ColumnDefinition Width="105*"/>
         </Grid.ColumnDefinitions>
-        <Label Content="Replace" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-        <TextBox Text="{Binding Replace, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" HorizontalAlignment="Stretch" Margin="51,0,0,0" VerticalContentAlignment="Center" Padding="4"/>
-        <Label Content="With" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1"/>
-        <TextBox Text="{Binding With, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" HorizontalAlignment="Stretch" Margin="35,0,20,0" VerticalContentAlignment="Center" Padding="4" Grid.Column="1"/>
-        <Button Content="X" Command="{Binding RemoveItemCommand, Mode=OneTime}" Foreground="#FFFA1919" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="1" Width="20"/>
+        <Label Content="Replace" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,1"/>
+        <TextBlock Text="{Binding Replace, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="51,2,0,2" Padding="4"/>
+        <Label Content="With" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0" Grid.Column="1"/>
+        <TextBlock Text="{Binding With, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="35,0,20,0" Padding="4" Grid.Column="1"/>
+        <Button Content="X" Command="{Binding RemoveItemCommand, Mode=OneTime}" Foreground="#FFFA1919" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Width="20" Grid.Column="1"/>
     </Grid>
 </UserControl>

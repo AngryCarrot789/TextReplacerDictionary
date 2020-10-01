@@ -38,6 +38,13 @@ namespace TextDictionaryReplacer.ViewModels
             set => RaisePropertyChanged(ref _caseSensitive, value);
         }
 
+        private bool _matchWholeWords;
+        public bool MatchWholeWords
+        {
+            get => _matchWholeWords;
+            set => RaisePropertyChanged(ref _matchWholeWords, value);
+        }
+
         private string _loadFilePath;
         public string LoadFilePath
         {
@@ -66,7 +73,7 @@ namespace TextDictionaryReplacer.ViewModels
 
         public DictionaryViewModel()
         {
-            DictionaryItems = new ObservableCollection<DictionaryPairViewModel>();
+            DictionaryItems = new ObservableCollection<DictionaryPairViewModel>(new List<DictionaryPairViewModel>(1000));
 
             AddKeyPairCommand = new Command(AddKeyPair);
             ClearAllPairsCommand = new Command(ClearKeyPairs);
@@ -139,11 +146,13 @@ namespace TextDictionaryReplacer.ViewModels
         {
             if (File.Exists(LoadFilePath))
             {
-                Task.Run(async() =>
+                Task.Run(() =>
                 {
                     IsNotLoadingDictionaryFromFile = false;
-                    foreach (string line in File.ReadAllLines(LoadFilePath))
+                    string[] dictionary = File.ReadAllLines(LoadFilePath);
+                    for (int dictLnIndex = 0; dictLnIndex < dictionary.Length; dictLnIndex++)
                     {
+                        string line = dictionary[dictLnIndex];
                         string formatted = line.CollapseSpaces().TrimStart().TrimEnd();
                         char separator = KeyValueSeparator?.Length > 0 ? ' ' : KeyValueSeparator[0];
                         string[] pair = formatted.Split(separator);
@@ -154,7 +163,7 @@ namespace TextDictionaryReplacer.ViewModels
                                 AddKeyPair(pair[0], pair[1]);
                             });
                         }
-                        await Task.Delay(TimeSpan.FromMilliseconds(0.5));
+                        //await Task.Delay(TimeSpan.FromMilliseconds(0.2));
                     }
                     IsNotLoadingDictionaryFromFile = true;
                 });

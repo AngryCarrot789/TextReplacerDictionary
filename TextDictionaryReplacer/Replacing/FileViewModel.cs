@@ -46,12 +46,14 @@ namespace TextDictionaryReplacer.Replacing
         }
 
         public ICommand RemoveFileCommand { get; }
+        public ICommand SaveFileCommand { get; }
 
         public Action<FileViewModel> RemoveFileCallback { get; set; }
 
         public FileViewModel()
         {
             RemoveFileCommand = new Command(RemoveFile);
+            SaveFileCommand = new Command(SaveText);
         }
 
         public void RemoveFile()
