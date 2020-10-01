@@ -21,7 +21,7 @@ namespace TextDictionaryReplacer.AttachedProperties
                 typeof(bool),
                 typeof(HorizontalScrolling),
                 new PropertyMetadata(
-                    new PropertyChangedCallback(OnHorizontalScrollingValueChanged)));
+                    new PropertyChangedCallback(OnHorizontalScrollingChanged)));
 
         public static readonly DependencyProperty ForceHorizontalScrollingProperty =
             DependencyProperty.RegisterAttached(
@@ -29,7 +29,7 @@ namespace TextDictionaryReplacer.AttachedProperties
                 typeof(bool),
                 typeof(HorizontalScrolling),
                 new PropertyMetadata(
-                    new PropertyChangedCallback(OnHorizontalScrollingValueChanged)));
+                    new PropertyChangedCallback(OnHorizontalScrollingChanged)));
 
         public static readonly DependencyProperty HorizontalScrollingAmountProperty =
             DependencyProperty.RegisterAttached(
@@ -38,37 +38,37 @@ namespace TextDictionaryReplacer.AttachedProperties
                 typeof(HorizontalScrolling),
                 new PropertyMetadata(System.Windows.Forms.SystemInformation.MouseWheelScrollLines));
 
-        public static bool GetUseHorizontalScrollingValue(DependencyObject d)
+        public static bool GetUseHorizontalScrolling(DependencyObject d)
         {
             return (bool)d.GetValue(UseHorizontalScrollingProperty);
         }
 
-        public static void SetUseHorizontalScrollingValue(DependencyObject d, bool value)
+        public static void SetUseHorizontalScrolling(DependencyObject d, bool value)
         {
             d.SetValue(UseHorizontalScrollingProperty, value);
         }
 
-        public static bool GetForceHorizontalScrollingValue(DependencyObject d)
+        public static bool GetForceHorizontalScrolling(DependencyObject d)
         {
             return (bool)d.GetValue(ForceHorizontalScrollingProperty);
         }
 
-        public static void SetForceHorizontalScrollingValue(DependencyObject d, bool value)
+        public static void SetForceHorizontalScrolling(DependencyObject d, bool value)
         {
             d.SetValue(ForceHorizontalScrollingProperty, value);
         }
 
-        public static int GetHorizontalScrollingAmountValue(DependencyObject d)
+        public static int GetHorizontalScrollingAmount(DependencyObject d)
         {
             return (int)d.GetValue(HorizontalScrollingAmountProperty);
         }
 
-        public static void SetHorizontalScrollingAmountValue(DependencyObject d, int value)
+        public static void SetHorizontalScrollingAmount(DependencyObject d, int value)
         {
             d.SetValue(HorizontalScrollingAmountProperty, value);
         }
 
-        public static void OnHorizontalScrollingValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        public static void OnHorizontalScrollingChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             if (sender is UIElement element)
             {
@@ -88,8 +88,8 @@ namespace TextDictionaryReplacer.AttachedProperties
             {
                 DependencyObject senderDp = sender as DependencyObject;
                 ScrollViewer scrollViewer = FindDescendant<ScrollViewer>(element);
-                forceHorizontalScrolling = GetForceHorizontalScrollingValue(senderDp);
-                horizontalScrollingAmount = GetHorizontalScrollingAmountValue(senderDp);
+                forceHorizontalScrolling = GetForceHorizontalScrolling(senderDp);
+                horizontalScrollingAmount = GetHorizontalScrollingAmount(senderDp);
                 if (horizontalScrollingAmount < 1)
                     horizontalScrollingAmount = 3;
 

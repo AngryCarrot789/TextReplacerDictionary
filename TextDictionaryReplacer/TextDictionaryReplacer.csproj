@@ -64,6 +64,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
+    <Compile Include="Converters\IsSearchingToColourConverter.cs" />
+    <Compile Include="Converters\IsSearchingToStartStopConverter.cs" />
     <Compile Include="Dictionaries\DictionaryPairControl.xaml.cs">
       <DependentUpon>DictionaryPairControl.xaml</DependentUpon>
     </Compile>

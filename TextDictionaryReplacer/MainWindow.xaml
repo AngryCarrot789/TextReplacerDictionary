@@ -3,11 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TextDictionaryReplacer" xmlns:dictionaries="clr-namespace:TextDictionaryReplacer.Dictionaries"
+        xmlns:local="clr-namespace:TextDictionaryReplacer" 
+        xmlns:dictionaries="clr-namespace:TextDictionaryReplacer.Dictionaries" 
+        xmlns:replacing="clr-namespace:TextDictionaryReplacer.Replacing"
+        xmlns:attached="clr-namespace:TextDictionaryReplacer.AttachedProperties"
+        xmlns:Converters="clr-namespace:TextDictionaryReplacer.Converters"
         mc:Ignorable="d"
         Title="Text Replacer" 
         Height="720" Width="1280"
         Style="{DynamicResource CustomWindowStyle}">
+    <Window.Resources>
+        <Converters:IsSearchingToStartStopConverter x:Key="IsSearchingToStartStopConverter"/>
+        <Converters:IsSearchingToColourConverter x:Key="IsSearchingToColourConverter"/>
+    </Window.Resources>
     <Grid Margin="5">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -46,7 +54,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Dictionary Pairs" VerticalAlignment="Center"/>
                                 <Separator Style="{DynamicResource VerticalSeparator}" Margin="5 0"/>
-                                <CheckBox IsChecked="{Binding CaseSensitive, UpdateSourceTrigger=PropertyChanged}" Content="Case Sensitive"/>
+                                <CheckBox IsChecked="{Binding CaseSensitive, UpdateSourceTrigger=PropertyChanged}" Content="Case Sensitive" Background="{DynamicResource ControlBrightDefaultBackground}" BorderBrush="{DynamicResource ControlBrightDefaultBorderBrush}"/>
                             </StackPanel>
                         </GroupBox.Header>
                         <Grid>
@@ -76,20 +84,25 @@
 
                             <Separator Margin="0,29,0,0" Height="1" VerticalAlignment="Top"/>
 
-                            <Label Content="Key and Value separator" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,33,0,0"/>
-                            <TextBox Text="{Binding KeyValueSeparator, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="142,33,19,0" VerticalContentAlignment="Center" Padding="4"/>
+                            <Label Content="Key and Value separator character" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,33,0,0"/>
+                            <TextBox Text="{Binding KeyValueSeparator, UpdateSourceTrigger=PropertyChanged}" 
+                                     VerticalAlignment="Top" 
+                                     HorizontalAlignment="Stretch" 
+                                     Margin="193,33,19,0" 
+                                     VerticalContentAlignment="Center" 
+                                     Padding="4" MaxLength="1"/>
                             <Border HorizontalAlignment="Right" VerticalAlignment="Top" Width="19" Height="26" 
                                     Background="{DynamicResource ControlDarkerBackground}" 
                                     BorderThickness="0 1 1 1" BorderBrush="{DynamicResource ControlDefaultBorderBrush}"
                                     ToolTipService.ShowDuration="5000" Margin="0,33,0,0">
                                 <Border.ToolTip>
-                                    <TextBlock Text="The characters which separate the Keys from the Values. This is normally whitespaces (   's)."
+                                    <TextBlock Text="The character which separate the Keys from the Values. This is normally a whitespace ( )."
                                                TextWrapping="Wrap"/>
                                 </Border.ToolTip>
                                 <TextBlock Text="?" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
 
-                            <Button Command="{Binding LoadDictionaryFromPathCommand, Mode=OneTime}" Content="Load" Margin="0,62,0,0"/>
+                            <Button Command="{Binding LoadDictionaryFromPathCommand, Mode=OneTime}" IsEnabled="{Binding IsNotLoadingDictionaryFromFile, UpdateSourceTrigger=PropertyChanged}" Content="Load" Margin="0,62,0,0"/>
                         </Grid>
                     </GroupBox>
                 </Grid>
@@ -101,35 +114,75 @@
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="2*"/>
                     </Grid.ColumnDefinitions>
-                    <GroupBox Header="Files">
+                    <GroupBox Header="Files" Margin="0,0,0,153">
                         <Grid>
-                            <Button Content="Open and Add a File" VerticalAlignment="Top" 
+                            <Button Command="{Binding OpenFileCommand, Mode=OneTime}" Content="Open and Add a File" VerticalAlignment="Top" 
                                     HorizontalAlignment="Stretch" 
                                     Height="32"/>
-                            <ListBox ItemsSource="{Binding DictionaryItems, Mode=OneTime}"
-                                    HorizontalContentAlignment="Stretch"
-                                    ScrollViewer.CanContentScroll="False"
-                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-                                    BorderBrush="{DynamicResource ControlDefaultBorderBrush}" 
-                                    Margin="0,70,0,38">
+                            <Border Margin="0,35,0,0" Height="35" VerticalAlignment="Top"
+                                    BorderThickness="1" BorderBrush="{DynamicResource ControlDefaultBorderBrush}" Background="{DynamicResource ContainerBackground}">
+                                <Grid>
+                                    <Button Command="{Binding OpenFolderCommand, Mode=OneTime}" Content="Open all Files in a Folder" 
+                                            HorizontalAlignment="Stretch" Margin="0,0,85,0"
+                                            BorderThickness="0 0 1 0"/>
+                                    <CheckBox IsChecked="{Binding SearchRecursively, UpdateSourceTrigger=PropertyChanged}" Content="Search&#xA;Recursively" HorizontalAlignment="Right" Width="82" Height="Auto"/>
+                                </Grid>
+                            </Border>
+                            <ListBox ItemsSource="{Binding Files, Mode=OneTime}"
+                                     SelectedItem="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}"
+                                     HorizontalContentAlignment="Stretch"
+                                     ScrollViewer.CanContentScroll="False"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                     BorderBrush="{DynamicResource ControlDefaultBorderBrush}" 
+                                     Margin="0,73,0,38">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <dictionaries:DictionaryPairControl DataContext="{Binding}"/>
+                                        <replacing:FileControl DataContext="{Binding}"/>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                            <Button Command="{Binding ClearAllPairsCommand, Mode=OneTime}" 
+                            <Button Command="{Binding ClearFilesCommand, Mode=OneTime}" 
                                     Content="Clear" 
                                     VerticalAlignment="Bottom" 
                                     Height="35"/>
-                            <Button Content="Open all Files in a Folder" VerticalAlignment="Top" 
-                                HorizontalAlignment="Stretch" 
-                                Height="32" Margin="0,35,0,0"/>
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="Text" Grid.Column="1" Margin="3,0,0,0">
+                    <GroupBox Header="Search and Replace" Height="150" VerticalAlignment="Bottom">
+                        <Grid>
+                            <Button Content="{Binding IsSearching, Converter={StaticResource IsSearchingToStartStopConverter}, UpdateSourceTrigger=PropertyChanged}" 
+                                    Command="{Binding AutoStartSearchCommand, Mode=OneTime}"
+                                    FontSize="20" 
+                                    HorizontalAlignment="Stretch" 
+                                    Margin="0,55,0,0" 
+                                    Background="{Binding IsSearching, Converter={StaticResource IsSearchingToColourConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Label Content="Will search through" Padding="5 5 4 5" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <StackPanel Orientation="Horizontal" Margin="112,0,0,0" Height="26" VerticalAlignment="Top">
+                                <Label Content="{Binding Files.Count, FallbackValue=0, UpdateSourceTrigger=PropertyChanged}" Padding="0 5 4 5"/>
+                                <Label Content="Files" Padding="0 5 5 5"/>
+                            </StackPanel>
+                            <Label Content="For" Padding="5 5 4 5" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,26,0,0"/>
+                            <StackPanel Orientation="Horizontal" Margin="26,26,0,0" Height="26" VerticalAlignment="Top">
+                                <Label Content="{Binding Dictionary.DictionaryItems.Count, UpdateSourceTrigger=PropertyChanged}" Padding="0 5 4 5"/>
+                                <Label Content="Keys to be replaced" Padding="0 5 5 5"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox DataContext="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="3,0,0,0">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Selected File"/>
+                                <Separator Style="{DynamicResource VerticalSeparator}" Margin="5 0"/>
+                                <TextBlock Text="Name: "/>
+                                <TextBlock Text="{Binding FileName, FallbackValue=(no file selected), UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="   -   Size: "/>
+                                <TextBlock Text="{Binding FileSize, FallbackValue=(no file selected), UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </GroupBox.Header>
                         <Grid>
                             <TextBox TextWrapping="NoWrap"
+                                     Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                                     FontFamily="Consolas"
+                                     attached:HorizontalScrolling.UseHorizontalScrolling="True"
                                      ScrollViewer.CanContentScroll="False"
                                      HorizontalScrollBarVisibility="Visible"
                                      VerticalScrollBarVisibility="Visible"

@@ -52,6 +52,13 @@ namespace TextDictionaryReplacer.ViewModels
             set => RaisePropertyChanged(ref _keyValueSeparator, value);
         }
 
+        private bool _isNotLoadingDictionaryFromFile;
+        public bool IsNotLoadingDictionaryFromFile
+        {
+            get => _isNotLoadingDictionaryFromFile;
+            set => RaisePropertyChanged(ref _isNotLoadingDictionaryFromFile, value);
+        }
+
         public ICommand AddKeyPairCommand { get; }
         public ICommand ClearAllPairsCommand { get; }
         public ICommand ShowSearchFilePathCommand { get; }
@@ -65,6 +72,8 @@ namespace TextDictionaryReplacer.ViewModels
             ClearAllPairsCommand = new Command(ClearKeyPairs);
             ShowSearchFilePathCommand = new Command(ShowSearchForFilePathDialog);
             LoadDictionaryFromPathCommand= new Command(LoadDictionaryFromPath);
+
+            IsNotLoadingDictionaryFromFile = true;
         }
 
         public void AddKeyPair()
@@ -132,19 +141,22 @@ namespace TextDictionaryReplacer.ViewModels
             {
                 Task.Run(async() =>
                 {
+                    IsNotLoadingDictionaryFromFile = false;
                     foreach (string line in File.ReadAllLines(LoadFilePath))
                     {
                         string formatted = line.CollapseSpaces().TrimStart().TrimEnd();
-                        string[] pair = formatted.Split(' ');
+                        char separator = KeyValueSeparator?.Length > 0 ? ' ' : KeyValueSeparator[0];
+                        string[] pair = formatted.Split(separator);
                         if (pair.Length >= 2)
                         {
-                            Application.Current.Dispatcher.Invoke(() =>
+                            Application.Current?.Dispatcher?.Invoke(() =>
                             {
                                 AddKeyPair(pair[0], pair[1]);
                             });
                         }
-                        await Task.Delay(1);
+                        await Task.Delay(TimeSpan.FromMilliseconds(0.5));
                     }
+                    IsNotLoadingDictionaryFromFile = true;
                 });
 
                 // Will use this eventually so that the entire file isn't loaded into memory

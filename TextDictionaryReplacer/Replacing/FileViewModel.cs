@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows.Forms;
+using System.Windows.Input;
 using TextDictionaryReplacer.Utilities;
 
 namespace TextDictionaryReplacer.Replacing
@@ -25,14 +27,36 @@ namespace TextDictionaryReplacer.Replacing
         public string FilePath
         {
             get => _filePath;
-            set => RaisePropertyChanged(ref _filePath, value);
+            set
+            {
+                RaisePropertyChanged(ref _filePath, value);
+                FileName = Path.GetFileName(value);
+            }
         }
 
         private string _text;
         public string Text
         {
             get => _text;
-            set => RaisePropertyChanged(ref _text, value);
+            set
+            {
+                RaisePropertyChanged(ref _text, value);
+                FileSize = $"{value.Length} Bytes";
+            }
+        }
+
+        public ICommand RemoveFileCommand { get; }
+
+        public Action<FileViewModel> RemoveFileCallback { get; set; }
+
+        public FileViewModel()
+        {
+            RemoveFileCommand = new Command(RemoveFile);
+        }
+
+        public void RemoveFile()
+        {
+            RemoveFileCallback?.Invoke(this);
         }
 
         public void LoadText()
