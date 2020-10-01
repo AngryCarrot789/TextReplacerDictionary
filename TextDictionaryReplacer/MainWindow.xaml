@@ -1,0 +1,152 @@
+﻿<Window x:Class="TextDictionaryReplacer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextDictionaryReplacer" xmlns:dictionaries="clr-namespace:TextDictionaryReplacer.Dictionaries"
+        mc:Ignorable="d"
+        Title="Text Replacer" 
+        Height="720" Width="1280"
+        Style="{DynamicResource CustomWindowStyle}">
+    <Grid Margin="5">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="12*"/>
+                <ColumnDefinition Width="30*"/>
+            </Grid.ColumnDefinitions>
+            <GroupBox DataContext="{Binding Dictionary, UpdateSourceTrigger=PropertyChanged}">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Dictionary" VerticalAlignment="Center"/>
+                        <Separator Style="{DynamicResource VerticalSeparator}" Margin="5 0"/>
+                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" Width="18" Height="18" 
+                                Background="{DynamicResource ControlDarkerBackground}" 
+                                BorderThickness="1" BorderBrush="{DynamicResource ControlDefaultBorderBrush}"
+                                ToolTipService.ShowDuration="150000">
+                            <Border.ToolTip>
+                                <TextBlock Text="A dictionary is basically two lists, one called the Key and one called the Value. A (string) Key might be 'Cat Name' and the value could be (string) 'Daisy'. This program will replace the Key with the Value, in the text on the right side. So if you're a programmer trying to deobfuscate code for example, the Key might be 'function_3895b' and the Value might be 'DoSomeTask'"
+                                           TextWrapping="Wrap"/>
+                            </Border.ToolTip>
+                            <TextBlock Text="?" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid>
+                    <GroupBox Header="Add Key and Values" Height="129" VerticalAlignment="Top">
+                        <Grid>
+                            <Label Content="Replace" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <TextBox Text="{Binding Replace, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="56,0,0,0" VerticalContentAlignment="Center" Padding="4"/>
+                            <Label Content="With" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,29,0,0"/>
+                            <TextBox Text="{Binding With, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="56,29,0,0" VerticalContentAlignment="Center" Padding="4"/>
+                            <Button Command="{Binding AddKeyPairCommand, Mode=OneTime}" Content="Add" Margin="0,58,0,0"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Margin="0,132,0,136">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Dictionary Pairs" VerticalAlignment="Center"/>
+                                <Separator Style="{DynamicResource VerticalSeparator}" Margin="5 0"/>
+                                <CheckBox IsChecked="{Binding CaseSensitive, UpdateSourceTrigger=PropertyChanged}" Content="Case Sensitive"/>
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <Grid>
+                            <ListBox ItemsSource="{Binding DictionaryItems, Mode=OneTime}"
+                                     HorizontalContentAlignment="Stretch"
+                                     ScrollViewer.CanContentScroll="False"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                     BorderBrush="{DynamicResource ControlDefaultBorderBrush}" 
+                                     Margin="0,0,0,38">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <dictionaries:DictionaryPairControl DataContext="{Binding}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Button Command="{Binding ClearAllPairsCommand, Mode=OneTime}" 
+                                    Content="Clear" 
+                                    VerticalAlignment="Bottom" 
+                                    Height="35"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Load from File" VerticalAlignment="Bottom" Height="133">
+                        <Grid>
+                            <Label Content="Path" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                            <TextBox Text="{Binding LoadFilePath, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="38,0,24,0" VerticalContentAlignment="Center" Padding="4"/>
+                            <Button Content="..." Command="{Binding ShowSearchFilePathCommand, Mode=OneTime}" BorderThickness="0 1 1 1" Height="26" VerticalAlignment="Top" HorizontalAlignment="Right" Width="24"/>
+
+                            <Separator Margin="0,29,0,0" Height="1" VerticalAlignment="Top"/>
+
+                            <Label Content="Key and Value separator" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,33,0,0"/>
+                            <TextBox Text="{Binding KeyValueSeparator, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="142,33,19,0" VerticalContentAlignment="Center" Padding="4"/>
+                            <Border HorizontalAlignment="Right" VerticalAlignment="Top" Width="19" Height="26" 
+                                    Background="{DynamicResource ControlDarkerBackground}" 
+                                    BorderThickness="0 1 1 1" BorderBrush="{DynamicResource ControlDefaultBorderBrush}"
+                                    ToolTipService.ShowDuration="5000" Margin="0,33,0,0">
+                                <Border.ToolTip>
+                                    <TextBlock Text="The characters which separate the Keys from the Values. This is normally whitespaces (   's)."
+                                               TextWrapping="Wrap"/>
+                                </Border.ToolTip>
+                                <TextBlock Text="?" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+
+                            <Button Command="{Binding LoadDictionaryFromPathCommand, Mode=OneTime}" Content="Load" Margin="0,62,0,0"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Replacing" DataContext="{Binding Replacing, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="3,0,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Header="Files">
+                        <Grid>
+                            <Button Content="Open and Add a File" VerticalAlignment="Top" 
+                                    HorizontalAlignment="Stretch" 
+                                    Height="32"/>
+                            <ListBox ItemsSource="{Binding DictionaryItems, Mode=OneTime}"
+                                    HorizontalContentAlignment="Stretch"
+                                    ScrollViewer.CanContentScroll="False"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                    BorderBrush="{DynamicResource ControlDefaultBorderBrush}" 
+                                    Margin="0,70,0,38">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <dictionaries:DictionaryPairControl DataContext="{Binding}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Button Command="{Binding ClearAllPairsCommand, Mode=OneTime}" 
+                                    Content="Clear" 
+                                    VerticalAlignment="Bottom" 
+                                    Height="35"/>
+                            <Button Content="Open all Files in a Folder" VerticalAlignment="Top" 
+                                HorizontalAlignment="Stretch" 
+                                Height="32" Margin="0,35,0,0"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Text" Grid.Column="1" Margin="3,0,0,0">
+                        <Grid>
+                            <TextBox TextWrapping="NoWrap"
+                                     ScrollViewer.CanContentScroll="False"
+                                     HorizontalScrollBarVisibility="Visible"
+                                     VerticalScrollBarVisibility="Visible"
+                                     BorderThickness="1"
+                                     Focusable="True" 
+                                     Visibility="Visible"
+                                     Language="en"
+                                     UndoLimit="1000"
+                                     AutoWordSelection="False"
+                                     IsInactiveSelectionHighlightEnabled="True"
+                                     AcceptsReturn="True"
+                                     AcceptsTab="True"
+                                     />
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="TextDictionaryReplacer.Dictionaries.DictionaryPairControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TextDictionaryReplacer.Dictionaries"
+             mc:Ignorable="d" 
+             d:DesignHeight="32" d:DesignWidth="400">
+    <Grid Margin="0 1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="12*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="Replace" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+        <TextBox Text="{Binding Replace, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" HorizontalAlignment="Stretch" Margin="51,0,0,0" VerticalContentAlignment="Center" Padding="4"/>
+        <Label Content="With" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1"/>
+        <TextBox Text="{Binding With, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" HorizontalAlignment="Stretch" Margin="35,0,20,0" VerticalContentAlignment="Center" Padding="4" Grid.Column="1"/>
+        <Button Content="X" Command="{Binding RemoveItemCommand, Mode=OneTime}" Foreground="#FFFA1919" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="1" Width="20"/>
+    </Grid>
+</UserControl>
