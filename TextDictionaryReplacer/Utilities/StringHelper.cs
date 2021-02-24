@@ -26,10 +26,11 @@ namespace TextDictionaryReplacer.Utilities
 
         public static string ReplaceFullWords(this string text, string oldWord, string newWord)
         {
-            if (text == null)
+            if (text.IsEmpty())
             {
-                return null;
+                return text;
             }
+
             int startIndex = 0;
             while (true)
             {

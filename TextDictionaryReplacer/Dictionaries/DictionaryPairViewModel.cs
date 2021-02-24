@@ -4,21 +4,16 @@ using TextDictionaryReplacer.Utilities;
 
 namespace TextDictionaryReplacer.Dictionaries
 {
-    public class DictionaryPairViewModel : BaseViewModel
+    public class DictionaryPairViewModel
     {
-        private string _replace;
-        public string Replace
-        {
-            get => _replace;
-            set => RaisePropertyChanged(ref _replace, value);
-        }
-
-        private string _with;
-        public string With
-        {
-            get => _with;
-            set => RaisePropertyChanged(ref _with, value);
-        }
+        /// <summary>
+        /// Replaces this
+        /// </summary>
+        public string Replace { get; set; }
+        /// <summary>
+        /// Replaces <see cref="Replace"/> with this
+        /// </summary>
+        public string With { get; set; }
 
         public ICommand RemoveItemCommand { get; }
 
@@ -27,6 +22,12 @@ namespace TextDictionaryReplacer.Dictionaries
         public DictionaryPairViewModel()
         {
             RemoveItemCommand = new Command(RemoveItem);
+        }
+
+        public DictionaryPairViewModel(string replace, string with) : this()
+        {
+            Replace = replace;
+            With = with;
         }
 
         public void RemoveItem()

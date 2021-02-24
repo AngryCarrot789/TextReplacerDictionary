@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -16,6 +17,12 @@ namespace TextDictionaryReplacer.ViewModels
     public class ReplacingViewModel : BaseViewModel
     {
         public ObservableCollection<FileViewModel> Files { get; set; }
+
+        public string FilesPreview
+        {
+            get => _filesPreview;
+            set => RaisePropertyChanged(ref _filesPreview, value);
+        }
 
         private bool _searchRecursively;
         public bool SearchRecursively
@@ -39,6 +46,8 @@ namespace TextDictionaryReplacer.ViewModels
         }
 
         private FileViewModel _selectedFile;
+        private string _filesPreview;
+
         public FileViewModel SelectedFile
         {
             get => _selectedFile;
@@ -58,7 +67,7 @@ namespace TextDictionaryReplacer.ViewModels
             Dictionary = dictionary;
 
             Files = new ObservableCollection<FileViewModel>(new List<FileViewModel>(1000));
-
+            FilesPreview = "";
             OpenFileCommand = new Command(OpenAndAddFileFromExplorer);
             OpenFolderCommand = new Command(OpenAndAddFolderFilesFromExplorer);
             SaveAllFilesCommand = new Command(SaveAllFiles);
@@ -87,6 +96,7 @@ namespace TextDictionaryReplacer.ViewModels
                 for (int fIndex = 0; fIndex < Files.Count; fIndex++)
                 {
                     FileViewModel file = Files[fIndex];
+                    SelectedFile = file;
                     if (!IsSearching) return;
                     if (!file.Text.IsEmpty())
                     {
@@ -95,18 +105,18 @@ namespace TextDictionaryReplacer.ViewModels
                             DictionaryPairViewModel pair = Dictionary.DictionaryItems[pairIndex];
                             string oldText = caseSensitive ? file.Text : file.Text.ToLower();
                             string replace = caseSensitive ? pair.Replace : pair.Replace.ToLower();
-                            string with = caseSensitive ? pair.With : pair.With.ToLower();
+                            string replaceWith = caseSensitive ? pair.With : pair.With.ToLower();
 
                             if (matchWord)
-                                file.Text = oldText.ReplaceFullWords(replace, with);
+                                file.Text = oldText.ReplaceFullWords(replace, replaceWith);
                             else
-                                file.Text = oldText.Replace(replace, with);
+                                file.Text = oldText.Replace(replace, replaceWith);
                             if (!IsSearching) return;
                         }
 
                         FilesLeftToSearch -= 1;
 
-                        await Task.Delay(TimeSpan.FromMilliseconds(0.2));
+                        await Task.Delay(TimeSpan.FromMilliseconds(0.15));
                     }
                 }
 
@@ -127,7 +137,7 @@ namespace TextDictionaryReplacer.ViewModels
             }
         }
 
-        public void AddFile(string path)
+        public FileViewModel AddFile(string path)
         {
             FileViewModel file = new FileViewModel();
             file.FilePath = path;
@@ -135,6 +145,7 @@ namespace TextDictionaryReplacer.ViewModels
 
             SetupFileCallbacks(file);
             AddFile(file);
+            return file;
         }
 
         public void AddFile(FileViewModel file)
@@ -184,10 +195,10 @@ namespace TextDictionaryReplacer.ViewModels
             {
                 Task.Run(async () =>
                 {
+                    StringBuilder preview = new StringBuilder(4096);
                     // Recursively search for all folders
                     if (SearchRecursively)
                     {
-
                         async void LocalOpenFilesAndFoldersInFolder(string path)
                         {
                             foreach (string folder in Directory.GetDirectories(path))
@@ -204,13 +215,16 @@ namespace TextDictionaryReplacer.ViewModels
                                 {
                                     Application.Current?.Dispatcher?.Invoke(() =>
                                     {
-                                        AddFile(file);
+                                        preview.AppendLine($"{Path.GetFileName(file)} -> {AddFile(file).FileSize}");
                                     });
 
                                     // need to add a delay between adding files
                                     // otherwise the UI will freeze due to 1000s
                                     // of items being added per second
-                                    await Task.Delay(2);
+                                    // 
+                                    // not really needed anymore because ui intensive stuff
+                                    // is gone... but eh
+                                    await Task.Delay(1);
                                 }
                             }
                         }
@@ -225,12 +239,14 @@ namespace TextDictionaryReplacer.ViewModels
                         {
                             Application.Current?.Dispatcher?.Invoke(() =>
                             {
-                                AddFile(file);
+                                preview.AppendLine($"{Path.GetFileName(file)} -> {AddFile(file).FileSize}");
                             });
 
                             await Task.Delay(2);
                         }
                     }
+
+                    FilesPreview += preview.ToString();
                 });
             }
         }

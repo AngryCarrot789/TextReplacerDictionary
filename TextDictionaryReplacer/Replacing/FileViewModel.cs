@@ -73,18 +73,15 @@ namespace TextDictionaryReplacer.Replacing
         {
             if (File.Exists(FilePath))
             {
-                if (Text.IsEmpty())
-                {
-                    DialogResult result = MessageBox.Show("Text is empty. Save Anyway?", "Text Empty", MessageBoxButtons.YesNo);
-                    if (result == DialogResult.Yes)
-                    {
-                        File.WriteAllText(FilePath, Text);
-                    }
-                }
-                else
-                {
-                    File.WriteAllText(FilePath, Text);
-                }
+                //if (Text.IsEmpty())
+                //{
+                //    DialogResult result = MessageBox.Show("Text is empty. Save Anyway?", "Text Empty", MessageBoxButtons.YesNo);
+                //    if (result == DialogResult.Yes)
+                //    {
+                //        File.WriteAllText(FilePath, Text);
+                //    }
+                //}
+                File.WriteAllText(FilePath, Text);
             }
         }
     }

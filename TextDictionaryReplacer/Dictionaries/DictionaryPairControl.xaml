@@ -12,9 +12,9 @@
             <ColumnDefinition Width="105*"/>
         </Grid.ColumnDefinitions>
         <Label Content="Replace" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,1"/>
-        <TextBlock Text="{Binding Replace, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="51,2,0,2" Padding="4"/>
+        <TextBlock Text="{Binding Replace, Mode=OneTime}" VerticalAlignment="Center" Margin="51,2,0,2" Padding="4"/>
         <Label Content="With" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0" Grid.Column="1"/>
-        <TextBlock Text="{Binding With, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="35,0,20,0" Padding="4" Grid.Column="1"/>
+        <TextBlock Text="{Binding With, Mode=OneTime}" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="35,0,20,0" Padding="4" Grid.Column="1"/>
         <Button Content="X" Command="{Binding RemoveItemCommand, Mode=OneTime}" Foreground="#FFFA1919" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Width="20" Grid.Column="1"/>
     </Grid>
 </UserControl>

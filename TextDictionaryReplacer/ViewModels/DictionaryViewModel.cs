@@ -15,7 +15,18 @@ namespace TextDictionaryReplacer.ViewModels
 {
     public class DictionaryViewModel : BaseViewModel
     {
-        public ObservableCollection<DictionaryPairViewModel> DictionaryItems { get; set; }
+        private ObservableCollection<DictionaryPairViewModel> _dictionaryItems;
+        public ObservableCollection<DictionaryPairViewModel> DictionaryItems
+        {
+            get => _dictionaryItems;
+            set => RaisePropertyChanged(ref _dictionaryItems, value);
+        }
+
+        public string DictionaryPreview
+        {
+            get => _dictionaryPreview;
+            set => RaisePropertyChanged(ref _dictionaryPreview, value);
+        }
 
         private string _replace;
         public string Replace
@@ -60,6 +71,8 @@ namespace TextDictionaryReplacer.ViewModels
         }
 
         private bool _isNotLoadingDictionaryFromFile;
+        private string _dictionaryPreview;
+
         public bool IsNotLoadingDictionaryFromFile
         {
             get => _isNotLoadingDictionaryFromFile;
@@ -74,13 +87,18 @@ namespace TextDictionaryReplacer.ViewModels
         public DictionaryViewModel()
         {
             DictionaryItems = new ObservableCollection<DictionaryPairViewModel>(new List<DictionaryPairViewModel>(1000));
-
+            DictionaryPreview = "";
             AddKeyPairCommand = new Command(AddKeyPair);
             ClearAllPairsCommand = new Command(ClearKeyPairs);
             ShowSearchFilePathCommand = new Command(ShowSearchForFilePathDialog);
             LoadDictionaryFromPathCommand= new Command(LoadDictionaryFromPath);
 
             IsNotLoadingDictionaryFromFile = true;
+        }
+
+        public static string FormatPair(string replace, string with)
+        {
+            return $"'{replace}' --> '{with}'";
         }
 
         public void AddKeyPair()
@@ -90,6 +108,7 @@ namespace TextDictionaryReplacer.ViewModels
                 DictionaryPairViewModel pair = new DictionaryPairViewModel();
                 pair.Replace = Replace;
                 pair.With = With;
+                DictionaryPreview += FormatPair(pair.Replace, pair.With) + '\n';
 
                 SetupDictionaryCallbacks(pair);
                 AddKeyPair(pair);
@@ -100,10 +119,7 @@ namespace TextDictionaryReplacer.ViewModels
         {
             if (!replace.IsEmpty() && !with.IsEmpty())
             {
-                DictionaryPairViewModel pair = new DictionaryPairViewModel();
-                pair.Replace = replace;
-                pair.With = with;
-
+                DictionaryPairViewModel pair = new DictionaryPairViewModel(replace, with);
                 SetupDictionaryCallbacks(pair);
                 AddKeyPair(pair);
             }
@@ -146,10 +162,20 @@ namespace TextDictionaryReplacer.ViewModels
         {
             if (File.Exists(LoadFilePath))
             {
-                Task.Run(() =>
+                Task.Run(async() =>
                 {
                     IsNotLoadingDictionaryFromFile = false;
                     string[] dictionary = File.ReadAllLines(LoadFilePath);
+                    // extra 10 just incase
+                    List<DictionaryPairViewModel> pairs = new List<DictionaryPairViewModel>(dictionary.Length + 10);
+                    StringBuilder preview = new StringBuilder(dictionary.Length * 50);
+                    // possibly some thead safe issues here maybe but idk i had no problems
+                    foreach(DictionaryPairViewModel pair in DictionaryItems)
+                    {
+                        pairs.Add(pair);
+                        preview.AppendLine(FormatPair(pair.Replace, pair.With));
+                    }
+
                     for (int dictLnIndex = 0; dictLnIndex < dictionary.Length; dictLnIndex++)
                     {
                         string line = dictionary[dictLnIndex];
@@ -158,14 +184,26 @@ namespace TextDictionaryReplacer.ViewModels
                         string[] pair = formatted.Split(separator);
                         if (pair.Length >= 2)
                         {
-                            Application.Current?.Dispatcher?.Invoke(() =>
+                            string replace = pair[0];
+                            string with = pair[1];
+                            if (!replace.IsEmpty() && !with.IsEmpty())
                             {
-                                AddKeyPair(pair[0], pair[1]);
-                            });
+                                DictionaryPairViewModel newPair = new DictionaryPairViewModel(replace, with);
+                                SetupDictionaryCallbacks(newPair);
+                                pairs.Add(newPair);
+                                preview.AppendLine(FormatPair(newPair.Replace, newPair.With));
+                            }
+
+                            await Task.Delay(TimeSpan.FromMilliseconds(0.05));
                         }
-                        //await Task.Delay(TimeSpan.FromMilliseconds(0.2));
                     }
                     IsNotLoadingDictionaryFromFile = true;
+
+                    Application.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        DictionaryItems = new ObservableCollection<DictionaryPairViewModel>(pairs);
+                        DictionaryPreview += preview.ToString();
+                    });
                 });
 
                 // Will use this eventually so that the entire file isn't loaded into memory
